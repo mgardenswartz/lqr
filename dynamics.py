@@ -1,18 +1,8 @@
 import numpy as np
 import math
 
-import scipy.integrate
 from control import lqr
 from typing import Callable
-
-
-def my_ODE_1(
-    t: float,
-    y: np.ndarray
-) -> np.ndarray:
-    a = -1
-    dy_dt = a * y
-    return dy_dt
 
 
 def P_controller_CLTI_dynamics(
@@ -40,48 +30,6 @@ def CLTI_LQR_gain(
         K, _, _ = lqr(A, B, Q, R)
     return K
 
-
-def integrate_first_order_ode(
-    current_time: float,
-    current_state: np.ndarray,
-    time_step_delta: float,
-    derivative_func: Callable[[float, np.ndarray], np.ndarray],
-    solver: str
-) -> scipy.integrate.OdeSolution | None:
-    original_shape = np.shape(a=current_state)
-    y0 = np.asarray(a=current_state).ravel()
-
-    def wrapped_derivative(
-        t: float,
-        y: np.ndarray
-    ) -> np.ndarray:
-        y_reshaped = y.reshape(original_shape)
-        dy_dt = derivative_func(
-            t,
-            y_reshaped
-        )
-        return np.asarray(a=dy_dt).ravel()
-
-    t_span = [current_time, current_time + time_step_delta]
-    solution = scipy.integrate.solve_ivp(
-        fun=wrapped_derivative,
-        t_span=t_span,
-        y0=y0,
-        method=solver
-    )
-    solution.y = solution.y[:, -1].reshape(original_shape)
-    return solution
-
-#         if not current_solution.success:
-#             raise ValueError(f"The ODE solver has encountered an error at simulation time {current_time}.")
-        # current_solution: scipy.integrate.OdeSolution = \
-        # dynamics.integrate_first_order_ode(
-        #     current_time=current_time,
-        #     current_state=self.position,
-        #     time_step_delta=self.config.sim_time_step_size_seconds,
-        #     derivative_func=self.dynamics,
-        #     solver=self.config.numeric_solver
-        # )
 
 def rk4_solver(
     current_time: float,
