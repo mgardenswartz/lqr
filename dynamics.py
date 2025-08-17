@@ -34,7 +34,7 @@ def CLTI_LQR_gain(
 def rk4_solver(
     current_time: float,
     current_state: np.ndarray,  # Assumed 1-D, so flatened already
-    integration_time_window: list[float, float],
+    integration_time_window: list[float],
     time_step_size: float,
     ode_func: Callable[[float, np.ndarray], np.ndarray] # Assumed output is 1-D
 ) -> np.ndarray:

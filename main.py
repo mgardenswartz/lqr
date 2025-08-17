@@ -52,7 +52,7 @@ def main() -> None:
     torque_max = 1  # N-m
     Q = np.eye(2)
     R = np.array([
-        [1/torque_max**2]
+        [6/torque_max**2]
     ])
     K = dynamics.CLTI_LQR_gain(A=A, B=B, Q=Q, R=R)
     print("LQR gain K:", K)
