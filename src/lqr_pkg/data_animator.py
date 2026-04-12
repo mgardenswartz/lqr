@@ -92,6 +92,7 @@ def create_lqr_animation(
 
     # Initialize animated elements
     state_point, = ax.plot([], [], [], 'o', color='red', markersize=8, label="Current State")
+    breadcrumb_line, = ax.plot([], [], [], '-', color='red', linewidth=2, alpha=0.7, label="Trajectory")
     time_text = ax.text2D(0.05, 0.95, '', transform=ax.transAxes, fontsize=12)
 
     # 5. Configure Plot Appearance
@@ -113,14 +114,27 @@ def create_lqr_animation(
     def init():
         """Initializes the animation."""
         state_point.set_data_3d([], [], [])
+        breadcrumb_line.set_data_3d([], [], [])
         time_text.set_text('')
-        return [state_point, time_text]
+        return [state_point, breadcrumb_line, time_text]
 
     def update(frame):
         """Updates the animation for each frame."""
         current_time = global_min_time + (frame / fps)
         idx = np.searchsorted(sim_times, current_time, side="right") - 1
         idx = max(0, idx)
+
+        start_time_thresh = current_time - 10.0
+        start_idx = np.searchsorted(sim_times, max(global_min_time, start_time_thresh), side="left")
+        
+        history_states = states[start_idx:idx+1]
+        if len(history_states) > 0:
+            history_pos = history_states[:, 0]
+            history_vel = history_states[:, 1]
+            history_cost = np.array([value_function(st) for st in history_states])
+            breadcrumb_line.set_data_3d(history_pos, history_vel, history_cost)
+        else:
+            breadcrumb_line.set_data_3d([], [], [])
 
         current_state = states[idx]
         current_pos, current_vel = current_state[0], current_state[1]
@@ -129,7 +143,7 @@ def create_lqr_animation(
         state_point.set_data_3d([current_pos], [current_vel], [current_cost])
         time_text.set_text(f'Time: {current_time:.2f}s')
 
-        return [state_point, time_text]
+        return [state_point, breadcrumb_line, time_text]
 
     # 7. Create and Save the Animation
     ani = animation.FuncAnimation(
