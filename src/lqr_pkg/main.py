@@ -18,11 +18,11 @@ logging.basicConfig(level=logging.INFO)
 
 def main() -> None:
     x_0 = np.array([
-        [-math.pi/4],  # deflection # rad
+        [10],  # deflection # rad
         [0]  # speed (rad/s)
     ])
     t_0 = 0
-    t_f = 30
+    t_f = 10
     controller_time_step_size = 1e-2
     solver_time_step_size = 1e-3  # Must be less than above
 
@@ -34,25 +34,25 @@ def main() -> None:
         array_to_save=x_0
     )
 
-    # An inverted pendulum linearized about the vertical orientation    
-    g = 9.81  # m/s2
-    b = 0.005  # N-s
-    L = 0.5  # m
-    m = 0.1  # kg
+    # A simple harmonic oscillator (undamped mass-spring system)
+    k_spring = 25.42  # N/m
+    m = 1.0  # kg
     A = np.array([
-        [  0,            1],
-        [g/L,  -b/(m*L**2)]
+        [ 0,           1],
+        [-k_spring/m,  0]
     ])
     B = np.array([
         [0],
-        [1]
+        [1/m]
     ])
 
     # LQR Costs (Bryson's Rule)
-    torque_max = 1  # N-m
-    Q = np.eye(2)
+    Q = np.array([
+        [1e-6, 0.0],
+        [0.0, 64.0]
+    ])
     R = np.array([
-        [6/torque_max**2]
+        [100.0]
     ])
     K = dynamics.CLTI_LQR_gain(A=A, B=B, Q=Q, R=R)
     print("LQR gain K:", K)

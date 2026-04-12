@@ -42,19 +42,19 @@ def create_lqr_animation(
         return
 
     # 2. Define System and LQR Parameters (from your main.py)
-    g = 9.81
-    b = 0.005
-    L = 0.5
-    m = 0.1
-    torque_max = 1.0
+    k_spring = 25.42  # N/m
+    m = 1.0  # kg
 
     A = np.array([
-        [0, 1],
-        [g / L, -b / (m * L**2)]
+        [ 0,           1],
+        [-k_spring/m,  0]
     ])
-    B = np.array([[0], [1]])
-    Q = np.eye(2)
-    R = np.array([[1 / torque_max**2]])
+    B = np.array([[0], [1/m]])
+    Q = np.array([
+        [1e-6, 0.0],
+        [0.0, 64.0]
+    ])
+    R = np.array([[100.0]])
 
     # 3. Solve for the P matrix of the Value Function (V = x'Px)
     try:
